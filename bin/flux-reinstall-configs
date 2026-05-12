@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# flux:summary=Reset all Flux user configs to the defaults
+# flux:requires-sudo=true
+
+set -e
+
+# Overwrite all user configs with the Flux defaults.
+
+if (( EUID == 0 )); then
+  echo "Error: This script should not be run as root"
+  exit 1
+fi
+
+echo "Resetting all Flux configs"
+cp -R ~/.local/share/flux/config/* ~/.config/
+cp ~/.local/share/flux/default/bashrc ~/.bashrc
+echo '[[ -f ~/.bashrc ]] && . ~/.bashrc' | tee ~/.bash_profile >/dev/null
+
+$(bash $FLUX_PATH/install/config/theme.sh)
+
+flux-refresh-limine
+flux-refresh-plymouth
+flux-nvim-setup

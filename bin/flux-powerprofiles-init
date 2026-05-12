@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# flux:summary=Set the correct power profile on boot based on current AC/battery state.
+
+if flux-battery-present && ! flux-ac-present; then
+  flux-powerprofiles-set battery
+else
+  flux-powerprofiles-set ac
+fi

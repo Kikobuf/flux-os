@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Detect ASUS Zenbook UX5406AA series laptops on Intel Panther Lake.
+
+flux-hw-match "ux5406aa" && flux-hw-intel-ptl

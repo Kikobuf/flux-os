@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Overwrite the user config for hyprsunset with the Flux default and restart the service.
+
+flux-refresh-config hypr/hyprsunset.conf
+flux-restart-hyprsunset

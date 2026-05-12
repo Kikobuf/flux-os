@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# flux:summary=Overwrite the user config for the Plymouth drive decryption and boot sequence with the Flux default and rebuild it.
+# flux:requires-sudo=true
+
+sudo cp -r ~/.local/share/flux/default/plymouth/* /usr/share/plymouth/themes/flux/
+sudo plymouth-set-default-theme flux
+
+if command -v limine-mkinitcpio &>/dev/null; then
+  sudo limine-mkinitcpio
+else
+  sudo mkinitcpio -P
+fi

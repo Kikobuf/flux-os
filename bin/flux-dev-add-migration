@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# flux:summary=Creates a new Flux migration named after the unix timestamp of the last commit.
+
+cd ~/.local/share/flux
+migration_file="$HOME/.local/share/flux/migrations/$(git log -1 --format=%cd --date=unix).sh"
+touch $migration_file
+
+if [[ $1 != "--no-edit" ]]; then
+  nvim $migration_file
+fi
+
+echo $migration_file

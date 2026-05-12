@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# flux:summary=Pull the latest Flux git changes
+
+set -e
+
+echo -e "\e[32mUpdate Flux\e[0m"
+
+flux-update-time
+
+# Suppress Hyprland config errors while git updates default config files mid-pull
+hyprctl eval 'hl.config({ debug = { suppress_errors = true } })' &>/dev/null || hyprctl keyword debug:suppress_errors true &>/dev/null || true
+
+git -C $FLUX_PATH pull --autostash
+git -C $FLUX_PATH --no-pager diff --check || git -C $FLUX_PATH reset --merge
+
+hyprctl reload &>/dev/null || true

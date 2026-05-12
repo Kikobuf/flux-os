@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# flux:summary=Reinstall the stable Flux source directory from git
+
+set -e
+
+# Reinstall the Flux configuration directory from the git source.
+
+git clone "https://github.com/basecamp/flux.git" ~/.local/share/flux-new >/dev/null
+mv $FLUX_PATH ~/.local/share/flux-old
+mv ~/.local/share/flux-new $FLUX_PATH

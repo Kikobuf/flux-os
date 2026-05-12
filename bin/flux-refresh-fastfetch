@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Overwrite the user config for fastfetch with the Flux default.
+
+flux-refresh-config fastfetch/config.jsonc

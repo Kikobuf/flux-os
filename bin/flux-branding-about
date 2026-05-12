@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# flux:summary=Edit, set, or reset About branding
+# flux:group=branding
+# flux:name=about
+# flux:args=<image|text|reset>
+# flux:examples=flux branding about image | flux branding about text | flux branding about reset
+
+set -euo pipefail
+
+SOURCE_DIR="${XDG_PICTURES_DIR:-$HOME/Pictures}"
+
+case "${1:-}" in
+image)
+  image=$(flux-menu-file "Pick png/svg from $SOURCE_DIR" "${SOURCE_DIR}" "svg png")
+  if [[ -n $image ]] && flux-transcode-ascii "$image" ~/.config/flux/branding/about.txt --width 54 --height 26; then
+    flux-launch-about >/dev/null 2>&1
+  fi
+  ;;
+text)
+  flux-launch-editor ~/.config/flux/branding/about.txt >/dev/null 2>&1 && flux-launch-about >/dev/null 2>&1
+  ;;
+reset)
+  cp "$FLUX_PATH/icon.txt" ~/.config/flux/branding/about.txt && flux-launch-about >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: flux-branding-about <image|text|reset>" >&2
+  exit 1
+  ;;
+esac

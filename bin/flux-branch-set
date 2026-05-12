@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# flux:summary=Set the branch for Flux's git repository.
+# flux:args=<master|rc|dev>
+
+if (($# == 0)); then
+  echo "Usage: flux-branch-set [master|rc|dev]"
+  exit 1
+else
+  branch="$1"
+fi
+
+if [[ $branch != "master" && $branch != "rc" && $branch != "dev" ]]; then
+  echo "Error: Invalid branch '$branch'. Must be one of: master, rc, dev"
+  exit 1
+fi
+
+git -C $FLUX_PATH switch $branch

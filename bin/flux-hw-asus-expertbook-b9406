@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Detect ASUS ExpertBook B9406 series laptops on Intel Panther Lake.
+
+flux-hw-match "B9406" && flux-hw-intel-ptl

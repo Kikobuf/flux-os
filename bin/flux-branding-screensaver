@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# flux:summary=Edit, set, or reset screensaver branding
+# flux:group=branding
+# flux:name=screensaver
+# flux:args=<image|text|reset>
+# flux:examples=flux branding screensaver image | flux branding screensaver text | flux branding screensaver reset
+
+set -euo pipefail
+
+SOURCE_DIR="${XDG_PICTURES_DIR:-$HOME/Pictures}"
+
+case "${1:-}" in
+image)
+  image=$(flux-menu-file "Pick png/svg from $SOURCE_DIR" "${SOURCE_DIR}" "svg png")
+  if [[ -n $image ]] && flux-transcode-ascii "$image" ~/.config/flux/branding/screensaver.txt; then
+    flux-launch-screensaver force >/dev/null 2>&1
+  fi
+  ;;
+text)
+  flux-launch-editor ~/.config/flux/branding/screensaver.txt >/dev/null 2>&1 && flux-launch-screensaver force >/dev/null 2>&1
+  ;;
+reset)
+  cp "$FLUX_PATH/logo.txt" ~/.config/flux/branding/screensaver.txt && flux-launch-screensaver force >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: flux-branding-screensaver <image|text|reset>" >&2
+  exit 1
+  ;;
+esac

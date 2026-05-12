@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# flux:summary=Wake displays and restore brightness after idle
+# flux:group=system
+# flux:name=wake
+# flux:examples=flux system wake
+
+flux-brightness-display on
+flux-brightness-keyboard restore

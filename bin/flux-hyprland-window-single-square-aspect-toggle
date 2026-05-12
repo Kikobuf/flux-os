@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# flux:summary=Toggle single-window square aspect ratio.
+
+case $(flux-hyprland-toggle single-window-aspect-ratio) in
+  on) flux-notification-send -g  "Enable single-window square aspect ratio" ;;
+  off) flux-notification-send -g  "Disable single-window square aspect ratio" ;;
+esac

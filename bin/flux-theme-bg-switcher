@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# flux:summary=Open the Flux background switcher
+# flux:group=theme
+# flux:name=bg-switcher
+# flux:aliases=flux background
+
+FLUX_PATH=${FLUX_PATH:-$HOME/.local/share/flux}
+theme_name=$(cat "$HOME/.config/flux/current/theme.name" 2>/dev/null)
+current_background=$(readlink -f "$HOME/.config/flux/current/background" 2>/dev/null)
+
+flux-menu-images \
+  --selected "$current_background" \
+  "$HOME/.config/flux/current/theme/backgrounds" \
+  "$HOME/.config/flux/backgrounds/$theme_name"

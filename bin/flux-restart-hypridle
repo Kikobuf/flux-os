@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Restart the hypridle service (used for idle detection and auto-lock).
+
+flux-restart-app hypridle

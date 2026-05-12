@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# flux:summary=Launch a floating terminal with the Flux presentation wrapper
+# flux:args=<command>
+
+cmd="$*"
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.flux.terminal --title=Flux -e bash -c "flux-show-logo; $cmd; if (( \$? != 130 )); then flux-show-done; fi"

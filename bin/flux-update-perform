@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# flux:summary=Run the full Flux update pipeline
+# flux:requires-sudo=true
+
+set -e
+
+# Ensure screensaver/sleep doesn't set in during updates
+hyprctl dispatch 'hl.dsp.window.tag({ tag = "+noidle" })' &>/dev/null || hyprctl dispatch tagwindow +noidle &>/dev/null || true
+
+# Perform all update steps
+flux-update-keyring
+flux-update-available-reset
+flux-update-system-pkgs
+flux-migrate
+flux-update-aur-pkgs
+flux-update-orphan-pkgs
+flux-hook post-update
+
+flux-update-analyze-logs
+
+flux-update-restart
+
+# Re-enable screensaver/sleep after updates
+hyprctl dispatch 'hl.dsp.window.tag({ tag = "-noidle" })' &>/dev/null || hyprctl dispatch tagwindow -- -noidle &>/dev/null || true

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# flux:summary=Refresh the SDDM theme from default
+# flux:requires-sudo=true
+
+sudo rm -rf /usr/share/sddm/themes/flux
+sudo cp -r $FLUX_PATH/default/sddm/flux /usr/share/sddm/themes/flux

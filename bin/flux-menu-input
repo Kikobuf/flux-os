@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# flux:summary=Prompt for text input with Walker
+# flux:group=menu
+# flux:name=input
+# flux:args=prompt [walker args...]
+# flux:examples=flux menu input Reminder|flux-menu-input "Reminder in minutes" --width 400
+
+set -euo pipefail
+
+prompt="${1:-Input}"
+if (( $# > 0 )); then
+  shift
+fi
+
+flux-launch-walker --dmenu --inputonly --width 295 --minheight 1 --maxheight 1 -p "$prompt…" "$@" 2>/dev/null

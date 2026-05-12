@@ -1,0 +1,13 @@
+run_logged $FLUX_INSTALL/hardware/gpu-detect.sh
+run_logged $FLUX_INSTALL/packaging/base.sh
+run_logged $FLUX_INSTALL/packaging/fonts.sh
+run_logged $FLUX_INSTALL/packaging/nvim.sh
+run_logged $FLUX_INSTALL/packaging/icons.sh
+run_logged $FLUX_INSTALL/packaging/webapps.sh
+run_logged $FLUX_INSTALL/packaging/tuis.sh
+run_logged $FLUX_INSTALL/packaging/npm.sh
+run_logged $FLUX_INSTALL/packaging/asus-rog.sh
+run_logged $FLUX_INSTALL/packaging/framework16.sh
+run_logged $FLUX_INSTALL/packaging/dell-xps-touchpad-haptics.sh
+run_logged $FLUX_INSTALL/packaging/surface.sh
+run_logged $FLUX_INSTALL/packaging/ai.sh

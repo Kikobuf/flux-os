@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Launch the Flux wifi controls (provided by the Impala TUI).
+
+rfkill unblock wifi
+flux-launch-or-focus-tui impala

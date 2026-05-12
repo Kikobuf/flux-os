@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Launch the Flux audio controls TUI (provided by wiremix).
+
+flux-launch-or-focus-tui wiremix

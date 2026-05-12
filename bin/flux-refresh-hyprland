@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# flux:summary=Overwrite all the user Hyprland Lua configs in ~/.config/hypr with the Flux defaults.
+
+flux-refresh-config hypr/.luarc.json
+flux-refresh-config hypr/autostart.lua
+flux-refresh-config hypr/bindings.lua
+flux-refresh-config hypr/input.lua
+flux-refresh-config hypr/looknfeel.lua
+flux-refresh-config hypr/hyprland.lua
+flux-refresh-config hypr/monitors.lua
+bash "$FLUX_PATH/install/config/detect-keyboard-layout.sh"

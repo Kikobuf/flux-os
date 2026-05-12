@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# flux:summary=Apply the current theme keyboard color to supported keyboards
+# flux:hidden=true
+
+flux-theme-set-keyboard-asus-rog
+flux-theme-set-keyboard-f16

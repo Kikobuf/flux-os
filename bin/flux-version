@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Print the installed Flux version
+
+cat $FLUX_PATH/version

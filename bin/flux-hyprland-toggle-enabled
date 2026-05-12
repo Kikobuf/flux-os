@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Check if a Hyprland toggle is currently enabled.
+# flux:args=<flag-name>
+
+[[ -f "$HOME/.local/state/flux/toggles/hypr/$1.lua" ]]

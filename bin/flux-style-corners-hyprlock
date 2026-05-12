@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# flux:summary=Set or toggle rounded Hyprlock input field corners
+# flux:args=[toggle|sharp|round]
+# flux:examples=flux style corners hyprlock toggle | flux style corners hyprlock round | flux style corners hyprlock sharp
+
+TOGGLES_CONFIG="$HOME/.local/state/flux/toggles/hyprlock.conf"
+
+set_rounding() {
+  local radius="$1"
+
+  mkdir -p "$(dirname "$TOGGLES_CONFIG")"
+
+  cat >"$TOGGLES_CONFIG" <<EOF
+input-field {
+    rounding = $radius
+}
+EOF
+}
+
+case "${1:-toggle}" in
+  round) set_rounding 6 ;;
+  sharp) set_rounding 0 ;;
+  toggle)
+    if [[ -f $TOGGLES_CONFIG ]] && grep -q '^    rounding = 6$' "$TOGGLES_CONFIG"; then
+      set_rounding 0
+    else
+      set_rounding 6
+    fi
+    ;;
+  *)
+    echo "Usage: flux-style-corners-hyprlock [toggle|sharp|round]"
+    exit 1
+    ;;
+esac

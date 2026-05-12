@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# flux:summary=Cache background switcher thumbnails for the current theme
+
+theme_name=$(cat "$HOME/.config/flux/current/theme.name" 2>/dev/null)
+
+flux-menu-images \
+  --cache-only \
+  "$HOME/.config/flux/current/theme/backgrounds" \
+  "$HOME/.config/flux/backgrounds/$theme_name"

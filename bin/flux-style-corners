@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# flux:summary=Set Hyprland, Hyprlock, Mako, and Walker corners to sharp or round
+# flux:args=<sharp|round>
+# flux:examples=flux style corners round | flux style corners sharp
+
+if [[ $1 != "sharp" && $1 != "round" ]]; then
+  echo "Usage: flux-style-corners <sharp|round>"
+  exit 1
+fi
+
+flux-style-corners-hyprland "$1"
+flux-style-corners-hyprlock "$1"
+flux-style-corners-mako "$1"
+flux-style-corners-walker "$1"
+
+case $1 in
+  sharp) flux-notification-send "Sharp corners enabled" -g 󰝣 ;;
+  round) flux-notification-send "Round corners enabled" -g 󰘇 ;;
+esac

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# flux:summary=Apply the current theme keyboard color to ASUS ROG keyboards
+# flux:hidden=true
+
+ASUSCTL_THEME=~/.config/flux/current/theme/keyboard.rgb
+
+if flux-cmd-present asusctl; then
+  asusctl aura effect static -c $(sed 's/^#//' $ASUSCTL_THEME)
+fi

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Launch a TUI command in the default terminal with Flux styling
+# flux:args=<command> [args...]
+
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.flux.$(basename $1) -e "$1" "${@:2}"

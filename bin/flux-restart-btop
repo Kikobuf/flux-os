@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Reload btop configuration (used by the Flux theme switching).
+
+pkill -SIGUSR2 btop

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Overwrite the user tmux config with the Flux default and reload tmux.
+
+flux-refresh-config tmux/tmux.conf
+flux-restart-tmux

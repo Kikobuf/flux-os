@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# flux:summary=No-op now that flux-update-perform is responsible for idle management.
+# flux:hidden=true

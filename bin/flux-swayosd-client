@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Wrapper for swayosd-client that targets the currently focused monitor.
+# flux:args=<swayosd-client-args...>
+
+exec swayosd-client --monitor "$(flux-hyprland-monitor-focused)" "$@"

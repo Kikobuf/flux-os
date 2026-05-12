@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Reload mako configuration (used by the Flux theme switching).
+
+makoctl reload

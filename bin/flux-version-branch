@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Print the current Flux git branch
+
+echo $(git -C "$FLUX_PATH" rev-parse --abbrev-ref HEAD)

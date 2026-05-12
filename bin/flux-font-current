@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Show current monospace font
+# flux:examples=flux font current
+
+grep -oP 'font-family:\s*["'\'']?\K[^;"'\'']+' ~/.config/waybar/style.css | head -n1

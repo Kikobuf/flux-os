@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# flux:summary=Log out after closing application windows
+# flux:examples=flux logout | flux system logout
+# flux:aliases=flux logout
+
+nohup bash -c "sleep 2 && uwsm stop" >/dev/null 2>&1 &
+
+# Now close all windows
+flux-hyprland-window-close-all
+sleep 1 # Allow apps like Chrome to shutdown correctly

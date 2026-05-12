@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# flux:summary=Check if a toggle is enabled (flag file exists)
+# flux:args=<flag-name>
+
+[[ -f "$HOME/.local/state/flux/toggles/$1" ]]

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# flux:summary=Overwrite the user config for hyprlock with the Flux default.
+
+flux-refresh-config hypr/hyprlock.conf

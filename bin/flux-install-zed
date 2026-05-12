@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# flux:summary=Install Zed Editor and configure it with the current Flux theme
+
+echo "Installing Zed Editor..."
+flux-pkg-add zed omazed
+
+# Apply Flux theme to Zed
+omazed setup
+
+setsid gtk-launch dev.zed.Zed

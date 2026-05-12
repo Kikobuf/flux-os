@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# flux:summary=Print the active Flux mirror and package channel
+
+if grep -q "https://stable-mirror.flux.org/" /etc/pacman.d/mirrorlist; then
+  mirror="stable"
+elif grep -q "https://rc-mirror.flux.org/" /etc/pacman.d/mirrorlist; then
+  mirror="rc"
+elif grep -q "https://mirror.flux.org/" /etc/pacman.d/mirrorlist; then
+  mirror="edge"
+else
+  mirror="unknown"
+fi
+
+if grep -q "https://pkgs.flux.org/stable/" /etc/pacman.conf; then
+  pkgs="stable"
+elif grep -q "https://pkgs.flux.org/edge/" /etc/pacman.conf; then
+  pkgs="edge"
+elif grep -q "https://pkgs.flux.org/rc/" /etc/pacman.conf; then
+  pkgs="rc"
+else
+  pkgs="unknown"
+fi
+
+if [[ $mirror == $pkgs ]]; then
+  echo $mirror
+else
+  echo "$mirror / $pkgs"
+fi

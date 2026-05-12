@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# flux:summary=Restore the default Flux Plymouth boot theme and SDDM login screen
+# flux:requires-sudo=true
+
+theme_dir="/usr/share/plymouth/themes/flux"
+
+sudo find ~/.local/share/flux/default/plymouth -maxdepth 1 -type f -exec cp -t "$theme_dir/" {} +
+sudo plymouth-set-default-theme flux
+
+if flux-cmd-present limine-mkinitcpio; then
+  sudo limine-mkinitcpio
+else
+  sudo mkinitcpio -P
+fi
+
+flux-refresh-sddm

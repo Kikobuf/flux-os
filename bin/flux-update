@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# flux:summary=Update Flux and system packages
+# flux:args=[-y]
+# flux:examples=flux update | flux update -y
+# flux:requires-sudo=true
+
+set -e
+
+# Run the update inside a PTY so pacman/yay keep showing download progress
+# while still logging the full session for later analysis.
+if [[ -z $FLUX_UPDATE_LOGGED ]]; then
+  script_command=$(printf '%q ' "$0" "$@")
+  exec env FLUX_UPDATE_LOGGED=1 script -qefc "$script_command" "/tmp/flux-update.log"
+fi
+
+trap 'echo ""; echo -e "\033[0;31mSomething went wrong during the update!\n\nPlease review the output above carefully, correct the error, and retry the update.\n\nIf you need assistance, get help from the community at https://flux.org/discord\033[0m"' ERR
+
+if [[ $1 == "-y" ]] || flux-update-confirm; then
+  flux-snapshot create || (($? == 127))
+  flux-update-git
+  flux-update-perform
+fi
