@@ -1,0 +1,19 @@
+#!/bin/bash
+# flux-installer — open the Flux Visual App Installer
+# omarchy:summary=Browse and install apps
+# omarchy:group=system
+
+INSTALLER_BIN="$HOME/.local/share/flux/flux-installer/flux-installer"
+INSTALLER_DEV="$HOME/.local/share/flux/flux-installer"
+
+if [ -f "$INSTALLER_BIN" ]; then
+  exec "$INSTALLER_BIN" "${@}"
+fi
+
+if [ -d "$INSTALLER_DEV" ]; then
+  cd "$INSTALLER_DEV"
+  exec npm run dev
+fi
+
+echo "Flux Installer not found. Run: cd ~/.local/share/flux/flux-installer && npm install && npm run build" >&2
+exit 1

@@ -33,3 +33,6 @@ hl.bind("SUPER + ALT + K", hl.dsp.exec_cmd("kdeconnect-app"), { description = "K
 
 -- Flux Settings (Super+comma like macOS System Preferences)
 hl.bind("SUPER + COMMA", hl.dsp.exec_cmd("flux-settings"), { description = "Open Flux Settings" })
+
+-- Flux App Installer
+hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("flux-installer"), { description = "Open App Installer" })
