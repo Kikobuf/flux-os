@@ -1,0 +1,28 @@
+#!/bin/bash
+# flux-files — open file manager with optional path
+# Wrapper around Dolphin with Flux-specific defaults
+# omarchy:summary=Open file manager
+# omarchy:group=apps
+
+set -euo pipefail
+
+case "${1:-}" in
+  trash)
+    dolphin trash:/ &
+    ;;
+  recent)
+    dolphin recent:/ &
+    ;;
+  downloads)
+    dolphin "${XDG_DOWNLOAD_DIR:-$HOME/Downloads}" &
+    ;;
+  home)
+    dolphin "$HOME" &
+    ;;
+  "")
+    dolphin &
+    ;;
+  *)
+    dolphin "$1" &
+    ;;
+esac

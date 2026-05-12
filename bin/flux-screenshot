@@ -1,0 +1,59 @@
+#!/bin/bash
+# flux-screenshot — GUI screenshot tool with annotation
+# Replaces the basic grimblast with a full snipping-tool-like experience
+# omarchy:summary=Take a screenshot
+# omarchy:group=capture
+
+set -euo pipefail
+
+SCREENSHOTS_DIR="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+mkdir -p "$SCREENSHOTS_DIR"
+FILENAME="$SCREENSHOTS_DIR/Screenshot-$(date +%Y%m%d-%H%M%S).png"
+
+case "${1:-menu}" in
+  region)
+    # Select region → annotate → save + copy
+    grimblast save area "$FILENAME" && \
+    swappy -f "$FILENAME" -o "$FILENAME" && \
+    wl-copy < "$FILENAME" && \
+    flux-notification-send "Screenshot saved" "$FILENAME"
+    ;;
+
+  window)
+    # Screenshot focused window
+    grimblast save active "$FILENAME" && \
+    swappy -f "$FILENAME" -o "$FILENAME" && \
+    wl-copy < "$FILENAME" && \
+    flux-notification-send "Screenshot saved" "$FILENAME"
+    ;;
+
+  fullscreen)
+    # Full screen
+    grimblast save screen "$FILENAME" && \
+    wl-copy < "$FILENAME" && \
+    flux-notification-send "Screenshot saved" "$FILENAME"
+    ;;
+
+  fullscreen-annotate)
+    grimblast save screen "$FILENAME" && \
+    swappy -f "$FILENAME" -o "$FILENAME" && \
+    wl-copy < "$FILENAME" && \
+    flux-notification-send "Screenshot saved" "$FILENAME"
+    ;;
+
+  menu|*)
+    CHOICE=$(gum choose \
+      "✂️   Select region" \
+      "🪟  Active window" \
+      "🖥️   Full screen" \
+      "🖥️   Full screen + annotate" \
+      --header "Screenshot" 2>/dev/null) || exit 0
+
+    case "$CHOICE" in
+      *"Select region"*)       "$0" region ;;
+      *"Active window"*)       "$0" window ;;
+      *"Full screen + annotate"*) "$0" fullscreen-annotate ;;
+      *"Full screen"*)         "$0" fullscreen ;;
+    esac
+    ;;
+esac

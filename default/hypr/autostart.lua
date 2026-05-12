@@ -16,3 +16,7 @@ hl.on("hyprland.start", function()
   -- Run post-boot hooks after startup config has loaded.
   hl.exec_cmd("sleep 2 && flux-hook post-boot")
 end)
+
+  -- Flux Phase 2: Load gestures
+  hl.exec_cmd("hyprctl keyword gestures:workspace_swipe true")
+  hl.exec_cmd("hyprctl keyword gestures:workspace_swipe_fingers 3")

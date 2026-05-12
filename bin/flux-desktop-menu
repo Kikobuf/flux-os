@@ -1,0 +1,32 @@
+#!/bin/bash
+# flux-desktop-menu — right-click context menu for the desktop
+# Called by Hyprland on right-click on empty desktop
+
+set -euo pipefail
+
+CHOICE=$(gum choose \
+  "📁  Open Files" \
+  "🌐  Open Browser" \
+  "💻  Open Terminal" \
+  "🎨  Change Wallpaper" \
+  "🖥️   Display Settings" \
+  "⚙️   Flux Settings" \
+  "🔒  Lock Screen" \
+  "---" \
+  "🔄  Restart Desktop" \
+  "⏻   Power Menu" \
+  --header "Flux Desktop" \
+  --header.foreground "99" \
+  2>/dev/null) || exit 0
+
+case "$CHOICE" in
+  *"Open Files"*)       dolphin & ;;
+  *"Open Browser"*)     flux-launch-browser & ;;
+  *"Open Terminal"*)    flux-launch-or-focus-tui alacritty & ;;
+  *"Change Wallpaper"*) flux-menu background ;;
+  *"Display Settings"*) flux-settings display & ;;
+  *"Flux Settings"*)    flux-settings & ;;
+  *"Lock Screen"*)      flux-system-lock ;;
+  *"Restart Desktop"*)  hyprctl reload ;;
+  *"Power Menu"*)       flux-menu system ;;
+esac

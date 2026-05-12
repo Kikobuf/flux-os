@@ -1,0 +1,76 @@
+#!/bin/bash
+# flux-monitor-wizard — GUI wizard for monitor setup
+# Triggered automatically when a new monitor is plugged in
+# omarchy:summary=Configure monitor layout
+# omarchy:group=hardware
+
+set -euo pipefail
+
+MONITORS=$(hyprctl monitors -j 2>/dev/null || echo "[]")
+MONITOR_COUNT=$(echo "$MONITORS" | jq length 2>/dev/null || echo "1")
+
+if [ "$MONITOR_COUNT" -lt 2 ]; then
+  flux-notification-send "No external monitor detected" "Plug in a monitor to configure it."
+  exit 0
+fi
+
+# Get monitor names
+MONITOR_NAMES=$(echo "$MONITORS" | jq -r '.[].name' | tr '\n' ' ')
+
+# Ask what to do with the new monitor
+CHOICE=$(gum choose \
+  "🖥️  Extend desktop (side by side)" \
+  "📺  Mirror primary display" \
+  "🔲  Use only external monitor" \
+  "💻  Use only laptop screen" \
+  "⚙️   Advanced setup" \
+  --header "New monitor detected! How would you like to set it up?" \
+  2>/dev/null) || exit 0
+
+case "$CHOICE" in
+  *"Extend desktop"*)
+    # Ask arrangement
+    SIDE=$(gum choose "Right of laptop" "Left of laptop" "Above laptop" "Below laptop" \
+      --header "Where is the external monitor?" 2>/dev/null) || exit 0
+
+    PRIMARY=$(echo "$MONITORS" | jq -r '.[0].name')
+    EXTERNAL=$(echo "$MONITORS" | jq -r '.[1].name')
+    PRIMARY_WIDTH=$(echo "$MONITORS" | jq -r '.[0].width')
+    PRIMARY_HEIGHT=$(echo "$MONITORS" | jq -r '.[0].height')
+
+    case "$SIDE" in
+      *"Right"*)  hyprctl keyword monitor "$EXTERNAL,preferred,${PRIMARY_WIDTH}x0,1" ;;
+      *"Left"*)   hyprctl keyword monitor "$EXTERNAL,preferred,-$(hyprctl monitors -j | jq -r '.[1].width')x0,1" ;;
+      *"Above"*)  hyprctl keyword monitor "$EXTERNAL,preferred,0x-$(hyprctl monitors -j | jq -r '.[1].height'),1" ;;
+      *"Below"*)  hyprctl keyword monitor "$EXTERNAL,preferred,0x${PRIMARY_HEIGHT},1" ;;
+    esac
+    flux-notification-send "Monitors configured" "Desktop extended. Drag windows between displays."
+    ;;
+
+  *"Mirror"*)
+    PRIMARY=$(echo "$MONITORS" | jq -r '.[0].name')
+    EXTERNAL=$(echo "$MONITORS" | jq -r '.[1].name')
+    hyprctl keyword monitor "$EXTERNAL,preferred,0x0,1,mirror,$PRIMARY"
+    flux-notification-send "Mirroring enabled" "External monitor mirrors your laptop screen."
+    ;;
+
+  *"only external"*)
+    EXTERNAL=$(echo "$MONITORS" | jq -r '.[1].name')
+    LAPTOP=$(echo "$MONITORS" | jq -r '.[0].name')
+    hyprctl keyword monitor "$EXTERNAL,preferred,0x0,1"
+    hyprctl keyword monitor "$LAPTOP,disable"
+    flux-notification-send "External only mode" "Laptop screen disabled."
+    ;;
+
+  *"only laptop"*)
+    LAPTOP=$(echo "$MONITORS" | jq -r '.[0].name')
+    EXTERNAL=$(echo "$MONITORS" | jq -r '.[1].name')
+    hyprctl keyword monitor "$LAPTOP,preferred,0x0,1"
+    hyprctl keyword monitor "$EXTERNAL,disable"
+    flux-notification-send "Laptop only mode" "External monitor disabled."
+    ;;
+
+  *"Advanced"*)
+    flux-settings display &
+    ;;
+esac

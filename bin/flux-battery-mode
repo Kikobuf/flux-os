@@ -1,0 +1,47 @@
+#!/bin/bash
+# flux-battery-mode — toggle battery optimization mode
+# omarchy:summary=Toggle battery saver mode
+# omarchy:group=hardware
+
+set -euo pipefail
+
+case "${1:-toggle}" in
+  saver|on)
+    powerprofilesctl set power-saver 2>/dev/null || true
+    # Reduce screen brightness
+    flux-brightness-display 40 2>/dev/null || true
+    # Disable animations for battery saving
+    hyprctl keyword animations:enabled false 2>/dev/null || true
+    # Enable idle suspend sooner
+    hyprctl keyword misc:key_press_enables_dpms true 2>/dev/null || true
+    flux-notification-send "🔋 Battery Saver ON" "Performance reduced to extend battery life."
+    ;;
+
+  balanced)
+    powerprofilesctl set balanced 2>/dev/null || true
+    hyprctl keyword animations:enabled true 2>/dev/null || true
+    flux-notification-send "⚡ Balanced Mode" "Normal performance and battery balance."
+    ;;
+
+  performance|off)
+    powerprofilesctl set performance 2>/dev/null || true
+    hyprctl keyword animations:enabled true 2>/dev/null || true
+    flux-notification-send "🚀 Performance Mode" "Maximum performance. Battery drains faster."
+    ;;
+
+  toggle)
+    CURRENT=$(powerprofilesctl get 2>/dev/null || echo "balanced")
+    if [ "$CURRENT" = "power-saver" ]; then
+      "$0" balanced
+    else
+      "$0" saver
+    fi
+    ;;
+
+  status)
+    CURRENT=$(powerprofilesctl get 2>/dev/null || echo "unknown")
+    BATTERY=$(flux-battery-remaining 2>/dev/null || echo "")
+    echo "Power profile: $CURRENT"
+    [ -n "$BATTERY" ] && echo "Battery: $BATTERY"
+    ;;
+esac

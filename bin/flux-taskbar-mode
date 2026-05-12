@@ -1,0 +1,54 @@
+#!/bin/bash
+# flux-taskbar-mode — toggle between tiling and taskbar (floating) mode
+# omarchy:summary=Toggle between tiling and taskbar mode
+# omarchy:group=style
+
+set -euo pipefail
+
+TOGGLE_FILE="$HOME/.config/flux/toggles/taskbar-mode"
+
+enable_taskbar_mode() {
+  mkdir -p "$(dirname "$TOGGLE_FILE")"
+  touch "$TOGGLE_FILE"
+
+  # Switch to floating layout
+  hyprctl keyword general:layout floating 2>/dev/null || true
+
+  # Move waybar to bottom like a taskbar
+  flux-style-waybar-position bottom 2>/dev/null || true
+
+  # Enable window decorations (title bars) for taskbar feel
+  hyprctl keyword decoration:rounding 8 2>/dev/null || true
+
+  # Show window titles in waybar
+  # (handled by waybar config module)
+
+  flux-notification-send "Taskbar mode enabled" "Windows now float freely. Use Super+T to tile a window."
+}
+
+disable_taskbar_mode() {
+  rm -f "$TOGGLE_FILE"
+
+  # Restore tiling layout
+  hyprctl keyword general:layout dwindle 2>/dev/null || true
+
+  # Restore waybar to top
+  flux-style-waybar-position top 2>/dev/null || true
+
+  flux-notification-send "Tiling mode enabled" "Windows now tile automatically."
+}
+
+case "${1:-toggle}" in
+  enable)   enable_taskbar_mode ;;
+  disable)  disable_taskbar_mode ;;
+  toggle)
+    if [ -f "$TOGGLE_FILE" ]; then
+      disable_taskbar_mode
+    else
+      enable_taskbar_mode
+    fi
+    ;;
+  status)
+    [ -f "$TOGGLE_FILE" ] && echo "taskbar" || echo "tiling"
+    ;;
+esac
