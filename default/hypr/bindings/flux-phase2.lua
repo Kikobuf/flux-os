@@ -30,3 +30,6 @@ hl.bind("SUPER + E", hl.dsp.exec_cmd("dolphin"), { description = "Open file mana
 
 -- KDE Connect
 hl.bind("SUPER + ALT + K", hl.dsp.exec_cmd("kdeconnect-app"), { description = "KDE Connect" })
+
+-- Flux Settings (Super+comma like macOS System Preferences)
+hl.bind("SUPER + COMMA", hl.dsp.exec_cmd("flux-settings"), { description = "Open Flux Settings" })

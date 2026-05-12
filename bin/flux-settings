@@ -1,0 +1,25 @@
+#!/bin/bash
+# flux-settings — open the Flux GUI settings panel
+# omarchy:summary=Open Flux settings
+# omarchy:group=system
+
+set -euo pipefail
+
+SETTINGS_BIN="$HOME/.local/share/flux/flux-settings/flux-settings"
+SETTINGS_DEV="$HOME/.local/share/flux/flux-settings"
+
+# If compiled binary exists, run it
+if [ -f "$SETTINGS_BIN" ]; then
+  exec "$SETTINGS_BIN" "${@}"
+fi
+
+# Dev mode — run vite dev server
+if [ -d "$SETTINGS_DEV" ]; then
+  cd "$SETTINGS_DEV"
+  exec npm run dev
+fi
+
+# Fallback
+echo "Flux Settings not installed yet." >&2
+echo "Run: cd ~/.local/share/flux/flux-settings && npm install && npm run build" >&2
+exit 1
