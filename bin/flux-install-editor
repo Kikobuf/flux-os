@@ -1,0 +1,17 @@
+#!/bin/bash
+# flux-install-editor — install a code editor by ID from onboarding
+set -euo pipefail
+case "${1:-}" in
+  cursor)    yay -S --noconfirm cursor-bin ;;
+  vscode)    yay -S --noconfirm visual-studio-code-bin ;;
+  zed)       yay -S --noconfirm zed ;;
+  neovim)    sudo pacman -S --noconfirm --needed neovim flux-nvim ;;
+  vim)       sudo pacman -S --noconfirm --needed vim ;;
+  helix)     sudo pacman -S --noconfirm --needed helix ;;
+  sublime)   yay -S --noconfirm sublime-text-4 ;;
+  jetbrains) yay -S --noconfirm jetbrains-toolbox ;;
+  emacs)     sudo pacman -S --noconfirm --needed emacs ;;
+  gedit)     sudo pacman -S --noconfirm --needed gedit ;;
+  *)         echo "Unknown editor: ${1:-}" >&2; exit 1 ;;
+esac
+echo "✓ Installed: ${1}"

@@ -1,0 +1,21 @@
+#!/bin/bash
+# flux-first-run-onboarding
+# Runs the onboarding wizard on first boot if setup is not complete
+# Called by flux-first-run
+
+SETUP_COMPLETE="$HOME/.config/flux/setup-complete"
+
+if [ -f "$SETUP_COMPLETE" ]; then
+  exit 0  # Already set up, do nothing
+fi
+
+# Block the desktop until onboarding is done
+# Run the onboarding app fullscreen
+if command -v flux-onboarding &>/dev/null; then
+  flux-onboarding
+elif [ -f "$HOME/.local/share/flux/flux-onboarding/flux-onboarding" ]; then
+  "$HOME/.local/share/flux/flux-onboarding/flux-onboarding"
+else
+  # Fallback: terminal-based setup
+  flux-setup-wizard-terminal
+fi

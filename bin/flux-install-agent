@@ -1,0 +1,15 @@
+#!/bin/bash
+# flux-install-agent — install an AI coding agent by ID from onboarding
+set -euo pipefail
+case "${1:-}" in
+  claude-code)  npm install -g @anthropic-ai/claude-code ;;
+  opencode)     npm install -g opencode-ai ;;
+  gemini)       flux-npm-install @google/gemini-cli gemini ;;
+  codex)        flux-npm-install @openai/codex codex ;;
+  copilot)      flux-npm-install @github/copilot copilot ;;
+  antigravity)  flux-npm-install antigravity-cli antigravity ;;
+  aider)        pip install aider-chat --break-system-packages ;;
+  continue)     echo "Continue: install via VS Code/Cursor extension marketplace" ;;
+  *)            echo "Unknown agent: ${1:-}" >&2; exit 1 ;;
+esac
+echo "✓ Installed: ${1}"

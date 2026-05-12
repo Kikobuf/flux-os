@@ -26,3 +26,6 @@ if [[ -f $FIRST_RUN_MODE ]]; then
   bash "$FLUX_PATH/install/first-run/welcome.sh"
   bash "$FLUX_PATH/install/first-run/wifi.sh"
 fi
+
+# Flux onboarding wizard (runs on first boot if not already complete)
+flux-first-run-onboarding

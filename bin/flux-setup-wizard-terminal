@@ -1,0 +1,140 @@
+#!/bin/bash
+# flux-setup-wizard-terminal
+# Terminal-based fallback setup wizard (used if Tauri app not compiled)
+
+set -euo pipefail
+
+clear
+cat << 'BANNER'
+
+███████╗██╗     ██╗   ██╗██╗  ██╗
+██╔════╝██║     ██║   ██║╚██╗██╔╝
+█████╗  ██║     ██║   ██║ ╚███╔╝ 
+██╔══╝  ██║     ██║   ██║ ██╔██╗ 
+██║     ███████╗╚██████╔╝██╔╝ ██╗
+╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝
+
+  Linux, reimagined for the AI age.
+  Welcome! Let's set up your system.
+
+BANNER
+
+# Full name
+read -rp "  Your full name: " FULL_NAME
+while [ -z "$FULL_NAME" ]; do
+  read -rp "  Full name cannot be empty: " FULL_NAME
+done
+
+# Username
+DEFAULT_USER=$(echo "$FULL_NAME" | tr '[:upper:]' '[:lower:]' | tr -d ' ' | cut -c1-16)
+read -rp "  Username [$DEFAULT_USER]: " USERNAME
+USERNAME="${USERNAME:-$DEFAULT_USER}"
+
+# Password
+while true; do
+  read -rsp "  Password: " PASSWORD; echo
+  read -rsp "  Confirm password: " PASSWORD2; echo
+  [ "$PASSWORD" = "$PASSWORD2" ] && break
+  echo "  Passwords don't match, try again."
+done
+
+echo ""
+echo "  Creating user $USERNAME..."
+useradd -m -s /bin/zsh "$USERNAME" 2>/dev/null || true
+echo "$USERNAME:$PASSWORD" | chpasswd
+usermod -aG wheel,docker,video,audio,input "$USERNAME" 2>/dev/null || true
+
+# Browser
+echo ""
+echo "  Pick your browser:"
+echo "  1) Chrome (popular)"
+echo "  2) Firefox (popular)"  
+echo "  3) Brave"
+echo "  4) Chromium"
+read -rp "  Choice [1]: " BROWSER_CHOICE
+case "${BROWSER_CHOICE:-1}" in
+  2) BROWSER="firefox" ;;
+  3) BROWSER="brave" ;;
+  4) BROWSER="chromium" ;;
+  *) BROWSER="chrome" ;;
+esac
+flux-install-browser "$BROWSER"
+
+# Editor
+echo ""
+echo "  Pick your code editor:"
+echo "  1) Cursor (AI-powered, popular)"
+echo "  2) VS Code (popular)"
+echo "  3) Neovim"
+echo "  4) Zed"
+echo "  5) Helix"
+read -rp "  Choice [1]: " EDITOR_CHOICE
+case "${EDITOR_CHOICE:-1}" in
+  2) EDITOR="vscode" ;;
+  3) EDITOR="neovim" ;;
+  4) EDITOR="zed" ;;
+  5) EDITOR="helix" ;;
+  *) EDITOR="cursor" ;;
+esac
+flux-install-editor "$EDITOR"
+
+# AI Agent
+echo ""
+echo "  Pick your AI coding agent:"
+echo "  1) Claude Code (popular)"
+echo "  2) OpenCode (multi-model)"
+echo "  3) Both (recommended)"
+echo "  4) Gemini CLI"
+echo "  5) OpenAI Codex"
+read -rp "  Choice [3]: " AGENT_CHOICE
+case "${AGENT_CHOICE:-3}" in
+  1) flux-install-agent claude-code ;;
+  2) flux-install-agent opencode ;;
+  4) flux-install-agent gemini ;;
+  5) flux-install-agent codex ;;
+  *) flux-install-agent claude-code; flux-install-agent opencode ;;
+esac
+
+# Terminal
+echo ""
+echo "  Pick your terminal:"
+echo "  1) Alacritty (fast, popular)"
+echo "  2) Warp (AI-powered)"
+echo "  3) Ghostty"
+echo "  4) Kitty"
+read -rp "  Choice [1]: " TERM_CHOICE
+case "${TERM_CHOICE:-1}" in
+  2) flux-default-terminal warp ;;
+  3) flux-default-terminal ghostty ;;
+  4) flux-default-terminal kitty ;;
+  *) flux-default-terminal alacritty ;;
+esac
+
+# Theme
+echo ""
+echo "  Pick your theme:"
+echo "  1) Tokyo Night (popular)"
+echo "  2) Catppuccin"
+echo "  3) Gruvbox"
+echo "  4) Nord"
+echo "  5) Rose Pine"
+echo "  6) Hackerman"
+read -rp "  Choice [1]: " THEME_CHOICE
+case "${THEME_CHOICE:-1}" in
+  2) THEME="catppuccin" ;;
+  3) THEME="gruvbox" ;;
+  4) THEME="nord" ;;
+  5) THEME="rose-pine" ;;
+  6) THEME="hackerman" ;;
+  *) THEME="tokyo-night" ;;
+esac
+sudo -u "$USERNAME" flux-theme-set "$THEME" 2>/dev/null || true
+
+# Mark complete
+mkdir -p "/home/$USERNAME/.config/flux"
+touch "/home/$USERNAME/.config/flux/setup-complete"
+
+echo ""
+echo "  ✓ Flux setup complete! Rebooting in 3 seconds..."
+sleep 3
+reboot
