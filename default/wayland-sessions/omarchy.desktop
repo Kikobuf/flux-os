@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Omarchy (Hyprland uwsm)
-Comment=Omarchy Hyprland session managed by uwsm
+Name=Flux (Hyprland uwsm)
+Comment=Flux OS — Linux for the AI age Hyprland session managed by uwsm
 Exec=uwsm start -g -1 -e -D Hyprland hyprland.desktop
 TryExec=uwsm
 Type=Application

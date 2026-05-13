@@ -1,6 +1,6 @@
 [Plymouth Theme]
-Name=Omarchy
-Description=Omarchy splash screen.
+Name=Flux
+Description=Flux OS boot splash.
 ModuleName=script
 
 [script]
