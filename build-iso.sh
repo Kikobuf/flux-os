@@ -59,6 +59,9 @@ build_profile() {
   # enable multilib for 32-bit packages
   cp -r /usr/share/archiso/configs/releng/ "$PROFILE_DIR"
 
+  # Remove grml-zsh-config from releng base packages (conflicts with our .zshrc)
+  sed -i '/^grml-zsh-config$/d' "$PROFILE_DIR/packages.x86_64" || true
+
   # Enable multilib repo for 32-bit packages (lib32-mesa etc)
   printf "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n" >> "$PROFILE_DIR/pacman.conf"
 
