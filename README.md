@@ -30,16 +30,22 @@ A beautiful, beginner-friendly, AI-first Linux distribution built on [Arch Linux
 
 ---
 
-## Install
+## Download & Install
+
+### Option 1 — ISO (Recommended)
+
+1. **[⬇️ Download the latest ISO](https://github.com/Kikobuf/flux-os/releases/latest)**
+2. **Flash to USB** with [balenaEtcher](https://etcher.balena.io/) (Windows/macOS/Linux — free, one click)
+3. **Boot from USB** — disable Secure Boot in BIOS first
+4. **Follow the onboarding wizard** — takes about 5 minutes
+
+> **Minimum requirements:** 64-bit CPU · 8GB RAM · 40GB disk space
+
+### Option 2 — Install on existing Arch Linux
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Kikobuf/flux-os/main/boot.sh | bash
 ```
-
-> Requires a dedicated drive. Full disk encryption enabled by default.
-> Disable Secure Boot in BIOS before installing.
-
-> **ISO coming soon** — we're working on a bootable ISO. For now, install via the boot script above on an existing Arch Linux system.
 
 ---
 

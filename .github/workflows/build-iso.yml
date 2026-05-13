@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to build (e.g. 0.2.0)'
+        description: 'Version (e.g. 0.2.0)'
         required: false
         default: 'dev'
 
@@ -16,45 +16,58 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
+      options: --privileged
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install build dependencies
+      - name: Initialize Arch keyring
         run: |
+          pacman-key --init
+          pacman-key --populate archlinux
           pacman -Syu --noconfirm
-          pacman -S --noconfirm archiso squashfs-tools git
+
+      - name: Install build tools
+        run: |
+          pacman -S --noconfirm \
+            archiso squashfs-tools libisoburn \
+            git curl dosfstools e2fsprogs
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set version
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
           VERSION="${VERSION#v}"
+          [ "$VERSION" = "dev" ] && VERSION="$(cat version 2>/dev/null || echo '0.1.0')-dev"
           echo "$VERSION" > version
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Building Flux OS v$VERSION"
 
       - name: Build ISO
         run: |
           chmod +x build-iso.sh
-          sudo ./build-iso.sh
+          bash build-iso.sh --fast
 
       - name: Generate checksums
         run: |
           cd out/
           sha256sum *.iso > SHA256SUMS
           md5sum *.iso > MD5SUMS
+          ls -lh *.iso
+          cat SHA256SUMS
 
-      - name: Upload ISO artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: flux-iso-${{ env.VERSION }}
+          name: flux-${{ env.VERSION }}-x86_64
           path: out/
-          retention-days: 30
+          retention-days: 90
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          name: Flux OS ${{ env.VERSION }}
           files: |
             out/*.iso
             out/SHA256SUMS
@@ -62,15 +75,58 @@ jobs:
           body: |
             ## Flux OS ${{ env.VERSION }}
 
-            ### Install
-            1. Download the ISO below
-            2. Write to USB: `dd if=flux-*.iso of=/dev/sdX bs=4M status=progress`
-            3. Boot from USB and follow the onboarding wizard
+            Linux, reimagined for the AI age.
 
-            ### What's new
-            See [CHANGELOG.md](CHANGELOG.md) for details.
+            ---
 
-            ### Checksums
-            See `SHA256SUMS` for verification.
+            ### ⬇️ Download
+
+            Click **flux-${{ env.VERSION }}-x86_64.iso** below to download.
+
+            **Minimum requirements:** 64-bit CPU · 8GB RAM · 40GB disk · Disable Secure Boot
+
+            ---
+
+            ### 🔌 Flash to USB
+
+            **Windows/macOS:** Use [balenaEtcher](https://etcher.balena.io/) — free, one click
+
+            **Linux:**
+            ```bash
+            sudo dd if=flux-${{ env.VERSION }}-x86_64.iso of=/dev/sdX bs=4M status=progress
+            ```
+
+            ---
+
+            ### 🚀 Install
+
+            1. Download the ISO
+            2. Flash to USB (8GB+)
+            3. Boot from USB (disable Secure Boot in BIOS first)
+            4. Follow the onboarding wizard — takes about 5 minutes
+
+            ---
+
+            ### 🔒 Verify
+
+            ```bash
+            sha256sum flux-${{ env.VERSION }}-x86_64.iso
+            # Compare with SHA256SUMS above
+            ```
+
+            ---
+
+            ### What's included
+            - AI stack: Claude Code, OpenCode, Ollama, LM Studio, Open WebUI
+            - GUI Settings Panel — no vim configs ever
+            - Visual App Installer — 70+ apps, one click
+            - AI Assistant — Claude API + Ollama fallback
+            - 19 themes, Hyprland desktop
+            - GPU auto-detection (NVIDIA/AMD/Intel)
+            - Windows-style onboarding wizard
+
+            See [CHANGELOG.md](https://github.com/Kikobuf/flux-os/blob/main/CHANGELOG.md) for full details.
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
