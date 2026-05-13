@@ -59,9 +59,8 @@ build_profile() {
   # enable multilib for 32-bit packages
   cp -r /usr/share/archiso/configs/releng/ "$PROFILE_DIR"
 
-  # Enable multilib repo for 32-bit packages
-  sed -i '/^#[multilib]/{n;s/^#//;s/^#//}' "$PROFILE_DIR/pacman.conf" || true
-  sed -i 's/^#[multilib]/[multilib]/' "$PROFILE_DIR/pacman.conf" || true
+  # Enable multilib repo for 32-bit packages (lib32-mesa etc)
+  printf "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n" >> "$PROFILE_DIR/pacman.conf"
 
   # ── Package list ───────────────────────────────────────────────────────
 
