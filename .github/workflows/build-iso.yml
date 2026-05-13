@@ -67,13 +67,34 @@ jobs:
           retention-days: 90
           compression-level: 0
 
+      - name: Upload ISO to R2
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        run: |
+          # Install AWS CLI (S3-compatible, works with R2)
+          pacman -S --noconfirm aws-cli || pip install awscli
+          
+          # Upload the ISO to R2
+          ISO_FILE=$(ls out/*.iso 2>/dev/null | head -1)
+          if [ -n "$ISO_FILE" ]; then
+            echo "Uploading $ISO_FILE to R2..."
+            aws s3 cp "$ISO_FILE" s3://flux-iso/               --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"               --no-progress
+            echo "✓ ISO uploaded to https://iso.fluxos.app/$(basename $ISO_FILE)"
+          fi
+          
+          # Also upload checksums
+          aws s3 cp out/SHA256SUMS s3://flux-iso/SHA256SUMS             --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"             --no-progress || true
+
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           name: Flux OS ${{ env.VERSION }}
           files: |
-            out/*.iso.xz
             out/SHA256SUMS
             out/MD5SUMS
           body: |
@@ -85,7 +106,7 @@ jobs:
 
             ### ⬇️ Download
 
-            Click **flux-${{ env.VERSION }}-x86_64.iso.xz** below to download, then decompress before flashing.
+            **[⬇️ flux-${{ env.VERSION }}-x86_64.iso](https://iso.fluxos.app/flux-${{ env.VERSION }}-x86_64.iso)** — Direct download, no GitHub file size limits
 
             **Minimum requirements:** 64-bit CPU · 8GB RAM · 40GB disk · Disable Secure Boot
 
@@ -93,8 +114,7 @@ jobs:
 
             ### 🔌 Flash to USB
 
-            **Windows/macOS:** Decompress with [7-Zip](https://7-zip.org/) first, then flash with [balenaEtcher](https://etcher.balena.io/)
-            **Or:** balenaEtcher can flash .xz files directly — just select the .xz file
+            **Windows/macOS:** Use [balenaEtcher](https://etcher.balena.io/) — free, one click
 
             **Linux:**
             ```bash
