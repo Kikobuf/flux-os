@@ -56,7 +56,12 @@ build_profile() {
   info "Building ISO profile..."
 
   rm -rf "$PROFILE_DIR"
+  # enable multilib for 32-bit packages
   cp -r /usr/share/archiso/configs/releng/ "$PROFILE_DIR"
+
+  # Enable multilib repo for 32-bit packages
+  sed -i '/^#[multilib]/{n;s/^#//;s/^#//}' "$PROFILE_DIR/pacman.conf" || true
+  sed -i 's/^#[multilib]/[multilib]/' "$PROFILE_DIR/pacman.conf" || true
 
   # ── Package list ───────────────────────────────────────────────────────
 
@@ -149,16 +154,16 @@ noto-fonts-cjk
 woff2
 
 # GUI Apps
-obsidian
+# obsidian  # AUR - installed post-boot
 gimp
 mpv
 obs-studio
 kdeconnect
-localsend
+# localsend  # AUR - installed post-boot
 
 # Security
 ufw
-bitwarden
+# bitwarden  # AUR - installed post-boot
 
 # Dev tools
 github-cli
@@ -230,7 +235,7 @@ PROFILEEOF
     cp -r "${SCRIPT_DIR}/assets/" "$ROOTFS/usr/local/share/flux/assets/"
   fi
 
-  chmod -R 755 "$ROOTFS/usr/local/bin/"
+  find "$ROOTFS/usr/local/bin/" -type f -exec chmod 755 {} + 2>/dev/null || true
 
   # ── SDDM ──────────────────────────────────────────────────────────────
 
@@ -365,7 +370,8 @@ header
 case "${1:-build}" in
   --clean)
     info "Cleaning build directories..."
-    rm -rf "$PROFILE_DIR" "$WORK_DIR"
+    rm -rf "$PROFILE_DIR"
+  # enable multilib for 32-bit packages "$WORK_DIR"
     success "Cleaned"
     ;;
   --fast)
