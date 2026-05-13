@@ -364,19 +364,7 @@ SVCEOF
 
   # ── systemd services ──────────────────────────────────────────────────
 
-  for svc in NetworkManager docker avahi-daemon ufw cups ollama
-
-# VM fallback desktop (XFCE)
-xfce4
-xfce4-terminal
-xfce4-goodies
-lightdm
-lightdm-gtk-greeter
-xorg-server
-xorg-xinit
-xf86-video-vmware
-xf86-video-vesa
-open-vm-tools; do
+  for svc in NetworkManager docker avahi-daemon ufw cups ollama; do
     SVC_FILE="/usr/lib/systemd/system/${svc}.service"
     if [ -f "$SVC_FILE" ]; then
       ln -sf "$SVC_FILE" \
