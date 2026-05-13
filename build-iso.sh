@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-FLUX_VERSION=$(cat version 2>/dev/null || echo "0.1.0")
+FLUX_VERSION=$(cat version 2>/dev/null || echo "0.1.1")
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROFILE_DIR="/tmp/flux-iso-profile"
 WORK_DIR="/tmp/flux-iso-work"
@@ -176,6 +176,18 @@ npm
 
 # AI
 ollama
+
+# VM fallback desktop (XFCE)
+xfce4
+xfce4-terminal
+xfce4-goodies
+lightdm
+lightdm-gtk-greeter
+xorg-server
+xorg-xinit
+xf86-video-vmware
+xf86-video-vesa
+open-vm-tools
 PKGS
 
   # ── profiledef.sh ─────────────────────────────────────────────────────
@@ -283,9 +295,88 @@ Type=Application
 DesktopNames=Hyprland
 EOF
 
+  # ── VM detection script ───────────────────────────────────────────────
+
+  mkdir -p "$ROOTFS/usr/local/bin"
+  cat > "$ROOTFS/usr/local/bin/flux-session-start" << 'SESSIONEOF'
+#!/bin/bash
+# Flux session starter — detects VM and falls back to XFCE if needed
+
+VM=$(systemd-detect-virt 2>/dev/null || echo "none")
+
+if [ "$VM" != "none" ] && [ "$VM" != "" ]; then
+  # Running in a VM — use XFCE fallback
+  echo "Flux: VM detected ($VM) — starting XFCE fallback desktop"
+  
+  # Show VM notice on login
+  cat > /etc/motd << 'MOTD'
+
+  ███████╗██╗     ██╗   ██╗██╗  ██╗
+  ██╔════╝██║     ██║   ██║╚██╗██╔╝
+  █████╗  ██║     ██║   ██║ ╚███╔╝ 
+  ██╔══╝  ██║     ██║   ██║ ██╔██╗ 
+  ██║     ███████╗╚██████╔╝██╔╝ ██╗
+  ╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝
+
+  Running in VM mode (XFCE fallback)
+  Install on real hardware for the full Hyprland experience.
+
+MOTD
+
+  # Start XFCE via lightdm
+  systemctl stop sddm 2>/dev/null || true
+  systemctl start lightdm
+else
+  # Real hardware — start Hyprland via SDDM
+  echo "Flux: Real hardware detected — starting Hyprland"
+  systemctl start sddm
+fi
+SESSIONEOF
+  chmod +x "$ROOTFS/usr/local/bin/flux-session-start"
+
+  # Create systemd service for flux-session-start
+  mkdir -p "$ROOTFS/etc/systemd/system"
+  cat > "$ROOTFS/etc/systemd/system/flux-session.service" << 'SVCEOF'
+[Unit]
+Description=Flux Session Starter
+After=network.target systemd-user-sessions.service
+Wants=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/flux-session-start
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target
+SVCEOF
+
+  # Enable flux-session service and disable sddm autostart
+  # (flux-session will start the right one)
+  ln -sf /etc/systemd/system/flux-session.service     "$ROOTFS/etc/systemd/system/graphical.target.wants/flux-session.service" 2>/dev/null || true
+  mkdir -p "$ROOTFS/etc/systemd/system/graphical.target.wants"
+
+  # Enable open-vm-tools for VMware
+  ln -sf /usr/lib/systemd/system/vmtoolsd.service     "$ROOTFS/etc/systemd/system/multi-user.target.wants/vmtoolsd.service" 2>/dev/null || true
+
+  # Enable lightdm (disabled by default, flux-session starts it if needed)
+  # DO NOT enable sddm here - flux-session handles it
+
   # ── systemd services ──────────────────────────────────────────────────
 
-  for svc in NetworkManager docker avahi-daemon ufw cups ollama; do
+  for svc in NetworkManager docker avahi-daemon ufw cups ollama
+
+# VM fallback desktop (XFCE)
+xfce4
+xfce4-terminal
+xfce4-goodies
+lightdm
+lightdm-gtk-greeter
+xorg-server
+xorg-xinit
+xf86-video-vmware
+xf86-video-vesa
+open-vm-tools; do
     SVC_FILE="/usr/lib/systemd/system/${svc}.service"
     if [ -f "$SVC_FILE" ]; then
       ln -sf "$SVC_FILE" \

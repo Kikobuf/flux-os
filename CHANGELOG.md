@@ -42,3 +42,13 @@ First public release of Flux OS — a fork of Omarchy rebuilt for AI developers.
 #### Base
 - Arch Linux + Hyprland
 - Forked from [Omarchy](https://github.com/basecamp/omarchy) by DHH (MIT)
+
+## [0.1.1] — 2026-05-13
+
+### Fixed
+- Added VM compatibility — Flux now detects when running in VirtualBox/VMware
+  and automatically falls back to XFCE desktop instead of Hyprland
+- VM users see a notice explaining they can get the full Hyprland experience
+  on real hardware
+- Added open-vm-tools for better VMware integration
+- Added xf86-video-vmware and xf86-video-vesa drivers for VM display support
