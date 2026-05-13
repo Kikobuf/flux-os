@@ -337,6 +337,29 @@ EOF
   success "ISO profile ready"
 }
 
+# ── Write zshrc after package install ─────────────────────────────────────────
+
+write_zshrc() {
+  ROOTFS="$WORK_DIR/x86_64/airootfs"
+  info "Writing Flux zshrc (overrides grml-zsh-config default)..."
+  cat > "$ROOTFS/etc/skel/.zshrc" << 'ZSHEOF'
+# Flux default zshrc
+export FLUX_PATH="/usr/local/share/flux"
+export PATH="$FLUX_PATH/bin:$PATH"
+[ -f "$FLUX_PATH/default/bash/rc" ] && source "$FLUX_PATH/default/bash/rc"
+alias c="opencode"
+alias cx="claude --dangerously-skip-permissions"
+alias ls="eza --icons"
+alias ll="eza -la --icons"
+alias cat="bat"
+alias cd="z"
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
+ZSHEOF
+  success "zshrc written"
+}
+
+
 # ── Build ISO ──────────────────────────────────────────────────────────────
 
 build_iso() {
@@ -350,6 +373,8 @@ build_iso() {
   if [ -n "$BUILT" ] && [ "$BUILT" != "$OUT_DIR/$ISO_NAME" ]; then
     mv "$BUILT" "$OUT_DIR/$ISO_NAME"
   fi
+
+  write_zshrc
 
   success "ISO built!"
   echo ""
