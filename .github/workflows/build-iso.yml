@@ -48,12 +48,15 @@ jobs:
           chmod +x build-iso.sh
           bash build-iso.sh --fast
 
-      - name: Generate checksums
+      - name: Compress and checksum ISO
         run: |
           cd out/
-          sha256sum *.iso > SHA256SUMS
-          md5sum *.iso > MD5SUMS
           ls -lh *.iso
+          echo "Compressing ISO with xz (this takes a few minutes)..."
+          xz -T0 -6 *.iso
+          ls -lh *.iso.xz
+          sha256sum *.iso.xz > SHA256SUMS
+          md5sum *.iso.xz > MD5SUMS
           cat SHA256SUMS
 
       - name: Upload artifact
@@ -62,6 +65,7 @@ jobs:
           name: flux-${{ env.VERSION }}-x86_64
           path: out/
           retention-days: 90
+          compression-level: 0
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -69,7 +73,7 @@ jobs:
         with:
           name: Flux OS ${{ env.VERSION }}
           files: |
-            out/*.iso
+            out/*.iso.xz
             out/SHA256SUMS
             out/MD5SUMS
           body: |
@@ -81,7 +85,7 @@ jobs:
 
             ### ⬇️ Download
 
-            Click **flux-${{ env.VERSION }}-x86_64.iso** below to download.
+            Click **flux-${{ env.VERSION }}-x86_64.iso.xz** below to download, then decompress before flashing.
 
             **Minimum requirements:** 64-bit CPU · 8GB RAM · 40GB disk · Disable Secure Boot
 
@@ -89,7 +93,8 @@ jobs:
 
             ### 🔌 Flash to USB
 
-            **Windows/macOS:** Use [balenaEtcher](https://etcher.balena.io/) — free, one click
+            **Windows/macOS:** Decompress with [7-Zip](https://7-zip.org/) first, then flash with [balenaEtcher](https://etcher.balena.io/)
+            **Or:** balenaEtcher can flash .xz files directly — just select the .xz file
 
             **Linux:**
             ```bash
