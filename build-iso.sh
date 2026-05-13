@@ -185,8 +185,8 @@ lightdm
 lightdm-gtk-greeter
 xorg-server
 xorg-xinit
-xf86-video-vmware
-xf86-video-vesa
+xf86-video-amdgpu
+xf86-input-libinput
 open-vm-tools
 PKGS
 
