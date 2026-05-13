@@ -234,6 +234,7 @@ PROFILEEOF
 
   # ── SDDM ──────────────────────────────────────────────────────────────
 
+  mkdir -p "$ROOTFS/etc/sddm.conf.d"
   cat > "$ROOTFS/etc/sddm.conf.d/flux.conf" << 'EOF'
 [Theme]
 Current=flux
@@ -265,6 +266,7 @@ EOF
 
   # ── Wayland session ───────────────────────────────────────────────────
 
+  mkdir -p "$ROOTFS/usr/share/wayland-sessions"
   cat > "$ROOTFS/usr/share/wayland-sessions/flux.desktop" << 'EOF'
 [Desktop Entry]
 Name=Flux
@@ -290,6 +292,7 @@ EOF
 
   # ── Flux environment ──────────────────────────────────────────────────
 
+  mkdir -p "$ROOTFS/etc/profile.d"
   cat > "$ROOTFS/etc/profile.d/flux.sh" << 'EOF'
 #!/bin/sh
 export FLUX_PATH="/usr/local/share/flux"
@@ -305,6 +308,7 @@ EOF
 
   # ── Default shell (zsh) ───────────────────────────────────────────────
 
+  mkdir -p "$ROOTFS/etc/skel"
   cat > "$ROOTFS/etc/skel/.zshrc" << 'EOF'
 # Flux default zshrc
 export FLUX_PATH="/usr/local/share/flux"
