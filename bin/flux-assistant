@@ -1,0 +1,24 @@
+#!/bin/bash
+# flux-assistant — open the Flux AI Assistant
+# omarchy:summary=Open AI assistant
+# omarchy:group=ai
+
+ASSISTANT_BIN="$HOME/.local/share/flux/flux-assistant/flux-assistant"
+ASSISTANT_DEV="$HOME/.local/share/flux/flux-assistant"
+
+# Toggle: if already running, kill it; if not, start it
+if pgrep -f "flux-assistant" > /dev/null 2>&1; then
+  pkill -f "flux-assistant" && exit 0
+fi
+
+if [ -f "$ASSISTANT_BIN" ]; then
+  exec "$ASSISTANT_BIN"
+fi
+
+if [ -d "$ASSISTANT_DEV" ]; then
+  cd "$ASSISTANT_DEV"
+  exec npm run dev
+fi
+
+echo "Flux Assistant not found." >&2
+exit 1

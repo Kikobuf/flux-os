@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "flux-assistant",
+  "version": "0.1.0",
+  "identifier": "dev.fluxos.assistant",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Flux Assistant",
+        "width": 380,
+        "height": 620,
+        "minWidth": 320,
+        "minHeight": 400,
+        "decorations": true,
+        "resizable": true,
+        "alwaysOnTop": false,
+        "center": false,
+        "x": 9999,
+        "y": 80
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/32x32.png", "icons/128x128.png"]
+  }
+}

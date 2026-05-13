@@ -36,3 +36,6 @@ hl.bind("SUPER + COMMA", hl.dsp.exec_cmd("flux-settings"), { description = "Open
 
 -- Flux App Installer
 hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("flux-installer"), { description = "Open App Installer" })
+
+-- Flux AI Assistant toggle (Super+A)
+hl.bind("SUPER + A", hl.dsp.exec_cmd("flux-assistant"), { description = "Toggle AI assistant" })
