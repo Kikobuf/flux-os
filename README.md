@@ -39,10 +39,7 @@ curl -fsSL https://raw.githubusercontent.com/Kikobuf/flux-os/main/boot.sh | bash
 > Requires a dedicated drive. Full disk encryption enabled by default.
 > Disable Secure Boot in BIOS before installing.
 
-Or download the ISO from [Releases](https://github.com/Kikobuf/flux-os/releases) and write to USB:
-```bash
-sudo dd if=flux-*.iso of=/dev/sdX bs=4M status=progress
-```
+> **ISO coming soon** — we're working on a bootable ISO. For now, install via the boot script above on an existing Arch Linux system.
 
 ---
 

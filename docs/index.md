@@ -34,7 +34,7 @@ Flux is a beginner-friendly, AI-first Linux distribution based on [Arch Linux](h
 
 ### Steps
 
-1. **Download the ISO** from [GitHub Releases](https://github.com/Kikobuf/flux-os/releases)
+1. **Download the ISO** — ISO releases coming soon. For now, install via `curl -fsSL https://raw.githubusercontent.com/Kikobuf/flux-os/main/boot.sh | bash` on an existing Arch Linux system.
 
 2. **Write to USB** (8GB+ drive):
    ```bash
