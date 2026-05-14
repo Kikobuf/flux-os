@@ -29,7 +29,7 @@ jobs:
         run: |
           pacman -S --noconfirm \
             archiso squashfs-tools libisoburn \
-            git curl dosfstools e2fsprogs
+            git curl dosfstools e2fsprogs rclone
 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -38,7 +38,7 @@ jobs:
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
           VERSION="${VERSION#v}"
-          [ "$VERSION" = "dev" ] && VERSION="$(cat version 2>/dev/null || echo '0.1.0')-dev"
+          [ "$VERSION" = "dev" ] && VERSION="$(cat version 2>/dev/null || echo '0.1.1')-dev"
           echo "$VERSION" > version
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Building Flux OS v$VERSION"
@@ -48,15 +48,12 @@ jobs:
           chmod +x build-iso.sh
           bash build-iso.sh --fast
 
-      - name: Compress and checksum ISO
+      - name: Checksum ISO
         run: |
           cd out/
           ls -lh *.iso
-          echo "Compressing ISO with xz (this takes a few minutes)..."
-          xz -T0 -6 *.iso
-          ls -lh *.iso.xz
-          sha256sum *.iso.xz > SHA256SUMS
-          md5sum *.iso.xz > MD5SUMS
+          sha256sum *.iso > SHA256SUMS
+          md5sum *.iso > MD5SUMS
           cat SHA256SUMS
 
       - name: Upload artifact
@@ -69,25 +66,25 @@ jobs:
 
       - name: Upload ISO to R2
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
         run: |
-          # Install AWS CLI (S3-compatible, works with R2)
-          pacman -S --noconfirm aws-cli || pip install awscli
-          
-          # Upload the ISO to R2
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << RCLONEEOF
+[r2]
+type = s3
+provider = Cloudflare
+access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
+secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
+endpoint = https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+acl = public-read
+RCLONEEOF
           ISO_FILE=$(ls out/*.iso 2>/dev/null | head -1)
           if [ -n "$ISO_FILE" ]; then
-            echo "Uploading $ISO_FILE to R2..."
-            aws s3 cp "$ISO_FILE" s3://flux-iso/               --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"               --no-progress
-            echo "✓ ISO uploaded to https://iso.fluxos.app/$(basename $ISO_FILE)"
+            echo "Uploading $(basename $ISO_FILE) to R2..."
+            rclone copy "$ISO_FILE" r2:flux-iso/ --progress
+            echo "Live at https://iso.fluxos.app/$(basename $ISO_FILE)"
           fi
-          
-          # Also upload checksums
-          aws s3 cp out/SHA256SUMS s3://flux-iso/SHA256SUMS             --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"             --no-progress || true
+          rclone copy out/SHA256SUMS r2:flux-iso/ --progress || true
+          rclone copy out/MD5SUMS r2:flux-iso/ --progress || true
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -102,56 +99,24 @@ jobs:
 
             Linux, reimagined for the AI age.
 
-            ---
+            ### Download
+            **[flux-${{ env.VERSION }}-x86_64.iso](https://iso.fluxos.app/flux-${{ env.VERSION }}-x86_64.iso)**
 
-            ### ⬇️ Download
+            ### Flash to USB
+            **Windows/macOS:** [balenaEtcher](https://etcher.balena.io/)
+            **Linux:** `sudo dd if=flux-${{ env.VERSION }}-x86_64.iso of=/dev/sdX bs=4M status=progress`
 
-            **[⬇️ flux-${{ env.VERSION }}-x86_64.iso](https://iso.fluxos.app/flux-${{ env.VERSION }}-x86_64.iso)** — Direct download, no GitHub file size limits
+            ### Install
+            1. Download ISO, flash to USB (8GB+)
+            2. Boot from USB (disable Secure Boot first)
+            3. Follow the onboarding wizard
 
-            **Minimum requirements:** 64-bit CPU · 8GB RAM · 40GB disk · Disable Secure Boot
-
-            ---
-
-            ### 🔌 Flash to USB
-
-            **Windows/macOS:** Use [balenaEtcher](https://etcher.balena.io/) — free, one click
-
-            **Linux:**
-            ```bash
-            sudo dd if=flux-${{ env.VERSION }}-x86_64.iso of=/dev/sdX bs=4M status=progress
-            ```
-
-            ---
-
-            ### 🚀 Install
-
-            1. Download the ISO
-            2. Flash to USB (8GB+)
-            3. Boot from USB (disable Secure Boot in BIOS first)
-            4. Follow the onboarding wizard — takes about 5 minutes
-
-            ---
-
-            ### 🔒 Verify
-
-            ```bash
-            sha256sum flux-${{ env.VERSION }}-x86_64.iso
-            # Compare with SHA256SUMS above
-            ```
-
-            ---
-
-            ### What's included
-            - AI stack: Claude Code, OpenCode, Ollama, LM Studio, Open WebUI
-            - GUI Settings Panel — no vim configs ever
-            - Visual App Installer — 70+ apps, one click
-            - AI Assistant — Claude API + Ollama fallback
-            - 19 themes, Hyprland desktop
-            - GPU auto-detection (NVIDIA/AMD/Intel)
-            - Windows-style onboarding wizard
-
-            See [CHANGELOG.md](https://github.com/Kikobuf/flux-os/blob/main/CHANGELOG.md) for full details.
+            ### Whats included
+            - Claude Code, OpenCode, Ollama, LM Studio, Open WebUI
+            - GUI Settings Panel, Visual App Installer, AI Assistant
+            - 19 themes, Hyprland desktop, GPU auto-detection
+            - VM compatibility (XFCE fallback in VirtualBox/VMware)
           draft: false
-          prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+          prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'beta') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
