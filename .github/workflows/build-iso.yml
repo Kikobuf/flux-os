@@ -72,8 +72,16 @@ jobs:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
         run: |
           mkdir -p ~/.config/rclone
-          printf "[r2]\ntype = s3\nprovider = Cloudflare\naccess_key_id = %s\nsecret_access_key = %s\nendpoint = https://%s.r2.cloudflarestorage.com\nacl = public-read\n" \
-            "$R2_ACCESS_KEY_ID" "$R2_SECRET_ACCESS_KEY" "$R2_ACCOUNT_ID" > ~/.config/rclone/rclone.conf
+          {
+            echo "[r2]"
+            echo "type = s3"
+            echo "provider = Cloudflare"
+            echo "access_key_id = $R2_ACCESS_KEY_ID"
+            echo "secret_access_key = $R2_SECRET_ACCESS_KEY"
+            echo "endpoint = https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+            echo "acl = public-read"
+          } > ~/.config/rclone/rclone.conf
+          cat ~/.config/rclone/rclone.conf
           ISO_FILE=$(ls out/*.iso 2>/dev/null | head -1)
           if [ -n "$ISO_FILE" ]; then
             echo "Uploading $(basename $ISO_FILE) to R2..."
