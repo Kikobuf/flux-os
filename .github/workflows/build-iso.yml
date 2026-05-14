@@ -66,17 +66,14 @@ jobs:
 
       - name: Upload ISO to R2
         if: startsWith(github.ref, 'refs/tags/')
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
         run: |
           mkdir -p ~/.config/rclone
-          cat > ~/.config/rclone/rclone.conf << RCLONEEOF
-[r2]
-type = s3
-provider = Cloudflare
-access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
-secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
-endpoint = https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
-acl = public-read
-RCLONEEOF
+          printf "[r2]\ntype = s3\nprovider = Cloudflare\naccess_key_id = %s\nsecret_access_key = %s\nendpoint = https://%s.r2.cloudflarestorage.com\nacl = public-read\n" \
+            "$R2_ACCESS_KEY_ID" "$R2_SECRET_ACCESS_KEY" "$R2_ACCOUNT_ID" > ~/.config/rclone/rclone.conf
           ISO_FILE=$(ls out/*.iso 2>/dev/null | head -1)
           if [ -n "$ISO_FILE" ]; then
             echo "Uploading $(basename $ISO_FILE) to R2..."
