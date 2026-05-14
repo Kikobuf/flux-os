@@ -71,17 +71,26 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
         run: |
+          # Strip any whitespace from secrets and build endpoint
+          AID=$(echo "$R2_ACCOUNT_ID" | xargs)
+          AK=$(echo "$R2_ACCESS_KEY_ID" | xargs)
+          SK=$(echo "$R2_SECRET_ACCESS_KEY" | xargs)
+          EP="https://${AID}.r2.cloudflarestorage.com"
+          
+          # Write rclone config as single file
           mkdir -p ~/.config/rclone
-          {
-            echo "[r2]"
-            echo "type = s3"
-            echo "provider = Cloudflare"
-            echo "access_key_id = $R2_ACCESS_KEY_ID"
-            echo "secret_access_key = $R2_SECRET_ACCESS_KEY"
-            echo "endpoint = https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-            echo "acl = public-read"
-          } > ~/.config/rclone/rclone.conf
-          cat ~/.config/rclone/rclone.conf
+          echo "[r2]" > ~/.config/rclone/rclone.conf
+          echo "type = s3" >> ~/.config/rclone/rclone.conf
+          echo "provider = Cloudflare" >> ~/.config/rclone/rclone.conf
+          echo "access_key_id = ${AK}" >> ~/.config/rclone/rclone.conf
+          echo "secret_access_key = ${SK}" >> ~/.config/rclone/rclone.conf
+          echo "endpoint = ${EP}" >> ~/.config/rclone/rclone.conf
+          echo "acl = public-read" >> ~/.config/rclone/rclone.conf
+          
+          # Verify config looks right (mask secrets)
+          grep -v "key" ~/.config/rclone/rclone.conf
+          
+          # Upload ISO
           ISO_FILE=$(ls out/*.iso 2>/dev/null | head -1)
           if [ -n "$ISO_FILE" ]; then
             echo "Uploading $(basename $ISO_FILE) to R2..."
